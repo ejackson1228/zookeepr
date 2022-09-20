@@ -1,9 +1,15 @@
 const express = require('express');
-const PORT = process.env.PORT || 3001;
-
-const { animals } = require('./data/animals')
+const PORT = process.env.PORT || 3001; //port method to work-around heroku's port 80 environment
+const fs = require('fs');
+const path = require('path');
+const { animals } = require('./data/animals');
 
 const app = express();
+
+//parse incoming string or arrray data
+app.use(express.urlencoded({ extended: true }));
+// parse incoming JSON data
+app.use(express.json());
 
 function filterByQuery(query, animalsArray) {
     let personalityTraitsArray = [];
@@ -44,12 +50,32 @@ function filterByQuery(query, animalsArray) {
     return filteredResults;
 }
 
-function findById (id, animalsArray) {
+function findById (id, animalsArray) { //function to filter animals by id number 
     const result = animalsArray.filter(animal => animal.id === id)[0];
     return result;
 }
 
-app.get('/api/animals', (req, res) => {
+function createNewAnimal(body, animalsArray) {
+    console.log(body);
+    // our functions main code will go here
+    const animal = body;
+    animalsArray.push(animal);
+    fs.writeFileSync(
+        path.join(__dirname, './data/animals.json'), 
+        // ^we want to write to our animals.json file in the data subdirectory, so we use join to join the value of __dirname,
+        // which represents the directory of the file we execute the code in, with the path to animals.json file. 
+        JSON.stringify({ animals: animalsArray }, null, 2)
+        //^ we need to save js array data as JSON, so we use stringify to convert it.
+        // null and 2 are means of keeping our data formatted. 
+        // null is to prevent editing of any exisiting data.
+        // 2 indicates we want to create white space between values to make it more readable. 
+
+    );
+    // return finished code to post route for response
+    return animal;
+}
+
+app.get('/api/animals', (req, res) => { // GET request for animals by query parameters
     let results = animals;
     if (req.query) {
         results = filterByQuery(req.query, results);
@@ -57,7 +83,7 @@ app.get('/api/animals', (req, res) => {
     res.json(results);
   });
 
-app.get('/api/animals/:id', (req, res) => {
+app.get('/api/animals/:id', (req, res) => { // GET request for animals by id parameter
     const result = findById(req.params.id, animals);
     if (result) {
         res.json(result);
@@ -66,6 +92,17 @@ app.get('/api/animals/:id', (req, res) => {
     }
   });
 
-app.listen(PORT, () => {
+app.post('/api/animals', (req, res) => { // POST request to upload new aniimals from client-side
+    // set id based on what the next index of the array will be
+    req.body.id = animals.length.toString();
+
+    //add animal to json file and animals array in this function
+    const animal = createNewAnimal(req.body, animals);
+    
+    
+    res.json(animal);
+});
+
+app.listen(PORT, () => { //listen method to run on port 3001 on heroku (heroku runs their environment on port 80)
     console.log(`API server now on port ${PORT}!`);
   });
