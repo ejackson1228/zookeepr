@@ -6,6 +6,8 @@ const { animals } = require('./data/animals');
 
 const app = express();
 
+app.use(express.static('public')); // middleware that instructs server to make certain files readily available. i.e. style.css and js files
+
 //parse incoming string or arrray data
 app.use(express.urlencoded({ extended: true }));
 // parse incoming JSON data
@@ -122,6 +124,22 @@ app.post('/api/animals', (req, res) => { // POST request to upload new aniimals 
         res.json(animal);
     }
 });
+
+app.get('/', (req, res) => { // reponse to homepage endpoint 
+    res.sendFile(path.join(__dirname, './public/index.html'))
+})
+
+app.get('/animals', (req, res) => { // reponse to the /animals ednpoint
+    res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
+app.get('/zookeepers', (req, res) => { // reponse to the /zookepers endpoint
+    res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+})
+
+app.get('*', (req, res) => { //wildcard route to catch false endpoint searches
+    res.sendFile(path.join(__dirname, './public/index.html'))
+})
 
 app.listen(PORT, () => { //listen method to run on port 3001 on heroku (heroku runs their environment on port 80)
     console.log(`API server now on port ${PORT}!`);
