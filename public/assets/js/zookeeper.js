@@ -23,7 +23,7 @@ const printResults = resultArr => {
 };
 
 const getZookeepers = (formData = {}) => {
-  let queryUrl = '/api/zookeepers?';
+  let queryUrl = '/api/zookeepers';
 
   Object.entries(formData).forEach(([key, value]) => {
     queryUrl += `${key}=${value}&`;
@@ -55,6 +55,6 @@ const handleGetZookeepersSubmit = event => {
   getZookeepers(zookeeperObject);
 };
 
-$zookeeperForm.addEventListener('submit', handleGetZookeepersSubmit);
-
 getZookeepers();
+
+$zookeeperForm.addEventListener('submit', handleGetZookeepersSubmit);
