@@ -1,8 +1,5 @@
 const express = require('express');
 const PORT = process.env.PORT || 3001; //port method to work-around heroku's port 80 environment
-const fs = require('fs');
-const path = require('path');
-const { animals } = require('./data/animals');
 const apiRoutes = require('./routes/apiRoutes');
 const htmlRoutes = require('./routes/htmlRoutes');
 
